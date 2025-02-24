@@ -10,15 +10,15 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <junit.version>4.13.2</junit.version>
     <assertj.swing.version>3.17.1</assertj.swing.version>
-    <mockito.version>5.10.0</mockito.version>
+    <mockito.version>4.11.0</mockito.version>
     <mongo.driver.version>3.12.14</mongo.driver.version>
-    <mongo.java.server.version>1.44.0</mongo.java.server.version>
-    <testcontainers.version>1.19.6</testcontainers.version>
-    <picocli.version>4.7.5</picocli.version>
+    <mongo.java.server.version>1.39.0</mongo.java.server.version>
+    <testcontainers.version>1.20.5</testcontainers.version>
+    <picocli.version>4.7.6</picocli.version>
   </properties>
 
   <dependencies>
@@ -31,7 +31,7 @@
       <!-- required to see Mongo Java Driver logs -->
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.13</version>
     </dependency>
     <dependency>
       <groupId>info.picocli</groupId>
@@ -68,14 +68,35 @@
       <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>mongodb</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <!--  Make sure that surefire can run JUnit 5 tests
+          by specifying a known version -->
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.5.2</version>
+        </plugin>
+        <!-- For report-only and failsafe-report-only -->
+        <plugin>
+          <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>3.5.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <id>add-test-source</id>
@@ -95,7 +116,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.22.1</version>
+        <version>3.5.2</version>
+        <configuration>
+          <systemPropertyVariables>
+            <mongo.port>${mongo.mapped.port}</mongo.port>
+          </systemPropertyVariables>
+        </configuration>
         <executions>
           <execution>
             <id>default-it</id>
@@ -124,14 +150,14 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.44.0</version>
+        <version>0.45.1</version>
         <configuration>
           <images>
             <image>
-              <name>mongo:4.0.5</name>
+              <name>mongo:5</name>
               <run>
                 <ports>
-                  <port>27017:27017</port>
+                  <port>mongo.mapped.port:27017</port>
                 </ports>
               </run>
             </image>
@@ -139,14 +165,14 @@
         </configuration>
         <executions>
           <execution>
-            <id>docker:start</id>
+            <id>docker-start</id>
             <phase>pre-integration-test</phase>
             <goals>
               <goal>start</goal>
             </goals>
           </execution>
           <execution>
-            <id>docker:stop</id>
+            <id>docker-stop</id>
             <phase>post-integration-test</phase>
             <goals>
               <goal>stop</goal>
@@ -157,4 +183,34 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <!-- Testcontainers does not yet support Windows containers
+        https://github.com/testcontainers/testcontainers-java/issues/2960 -->
+      <id>skip-testcontainers</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/*Testcontainers*.java</exclude>
+              </excludes>
+            </configuration>
+            <executions>
+              <execution>
+              <id>e2e-tests</id>
+              <configuration>
+                <excludes>
+                  <exclude>**/*E2E.java</exclude>
+                </excludes>
+              </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
