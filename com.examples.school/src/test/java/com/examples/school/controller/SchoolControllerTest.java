@@ -31,7 +31,7 @@ public class SchoolControllerTest {
 	private AutoCloseable closeable;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setup() {
 		closeable = MockitoAnnotations.openMocks(this);
 	}
 
