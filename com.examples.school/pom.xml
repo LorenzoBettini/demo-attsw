@@ -83,12 +83,12 @@
           by specifying a known version -->
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>3.5.5</version>
         </plugin>
         <!-- For report-only and failsafe-report-only -->
         <plugin>
           <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>3.5.5</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -96,7 +96,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.6.1</version>
         <executions>
           <execution>
             <id>add-test-source</id>
@@ -116,7 +116,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.5.2</version>
+        <version>3.5.5</version>
         <configuration>
           <systemPropertyVariables>
             <mongo.port>${mongo.mapped.port}</mongo.port>
@@ -150,7 +150,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.45.1</version>
+        <version>0.48.1</version>
         <configuration>
           <images>
             <image>
